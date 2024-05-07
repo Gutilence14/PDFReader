@@ -83,8 +83,7 @@ def analysis_pdf(pdf_path, img, detect_config, ocr_agent, out_dir, use_dict=True
             segment_image = i.crop((x_1, y_1, x_2, y_2))
             filename_with_extension = os.path.basename(pdf_path)
             filename, extension = os.path.splitext(filename_with_extension)
-            current_time = datetime.now().strftime(
-                "%Y-%m-%d_%H-%M-%S") + '_' + filename + ".png"
+            current_time = datetime.now().strftime("%Y%m%d%H%M%S%f") + '_' + filename + ".png"
             figure_image_name = os.path.join(out_dir, current_time)
             segment_image.save(figure_image_name)
             figure_image_name_res.append(figure_image_name)
