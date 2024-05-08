@@ -71,10 +71,14 @@ def analysis_word(word_path, out_dir, use_dict=True):
 
 
 if __name__ == '__main__':
-    word_path = "BIM/4.doc"
+    word_path = "BIM/1.docx"
     out_dir = 'img_folder'
 
     out = analysis_word(word_path, out_dir)
     print(out)
-    # with open(word_path, 'w', encoding='utf-8') as json_file:
-    #     json.dump(out, json_file, ensure_ascii=False)
+
+    word_path, file_extension = os.path.splitext(word_path)
+    word_path = word_path + '.json'
+
+    with open(word_path, 'w', encoding='utf-8') as json_file:
+        json.dump(out, json_file, ensure_ascii=False)
