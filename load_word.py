@@ -11,6 +11,25 @@ import os
 import subprocess
 
 
+
+
+
+def get_table_text(tbl):  
+    text = ""  
+    for row in tbl.tr_lst:  # 遍历所有行  
+        for tc in row.tc_lst:  # 遍历所有单元格  
+            # 提取单元格中的段落  
+            for p in tc.p_lst:  
+                # 遍历段落中的所有运行  
+                for r in p.r_lst:  
+                    # 提取运行中的文本  
+                    text += r.text
+    return text
+
+
+
+
+
 def analysis_word(word_path, out_dir, use_dict=True):
     # analysisa pdf file
 
@@ -31,21 +50,17 @@ def analysis_word(word_path, out_dir, use_dict=True):
         )
     else:
         res = {
-            word_path: {
-                "Text": None,
-                "Table": None,
-                "Figure": None,
-            },
+            word_path: {},
         }
 
     doc = Document(word_path)
 
     """
-    title
+    find heading 1 
     """
 
     # 初始化变量
-    current_heading = "at first"
+    current_heading = None
     current_table = None
     sections = {}
     section_content = []
@@ -53,27 +68,32 @@ def analysis_word(word_path, out_dir, use_dict=True):
     # 遍历文档中的所有元素
     for elem in doc.element.body:
         if isinstance(elem, docx.oxml.text.paragraph.CT_P):
-            # 检查是否为标题
-            if elem.pPr and elem.pPr.pStyle and elem.pPr.pStyle.val.startswith('Heading'):
+            # 检查是否为标题1
+            if (elem.pPr is not None) and (elem.pPr.pStyle is not None) and (int(elem.pPr.pStyle.val) == 2):
                 current_heading = elem.text
                 # 如果当前有标题，保存之前的节
                 if current_heading:
-                    sections[current_heading] = {
-                        'text': section_content, 'tables': current_table}
-                    section_content = []
-                    current_table = None
+
+                    res[word_path][current_heading] = {
+                                        "Title": "",
+                                        "Text": "",
+                                        "Table": "",
+                                        "Figure": [],
+                    }
+                    # sections[current_heading] = {
+                    #     'text': section_content, 'tables': current_table}
+                    # section_content = []
+                    # current_table = None
             else:
                 # 如果不是标题，将文本添加到当前节的文本列表中
-                if current_heading:
-                    section_content.append(elem.text)
+                if res[word_path].get(current_heading):
+                    res[word_path][current_heading]["Text"] += elem.text
 
         elif isinstance(elem, docx.oxml.table.CT_Tbl):
             # 检查是否为表格
-            if current_heading:
-                # 如果当前有标题，将表格分配给最近的标题
-                if not current_table:
-                    current_table = []
-                current_table.append(elem)
+            if res[word_path].get(current_heading):
+                table = get_table_text(elem)
+                res[word_path][current_heading]["Table"] += table
 
     # 不要忘记添加文档末尾的最后一节
     if current_heading and section_content:
