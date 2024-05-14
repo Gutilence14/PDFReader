@@ -69,7 +69,7 @@ def analysis_word(word_path, out_dir, use_dict=True):
     for elem in doc.element.body:
         if isinstance(elem, docx.oxml.text.paragraph.CT_P):
             # 检查是否为标题1
-            if (elem.pPr is not None) and (elem.pPr.pStyle is not None) and (int(elem.pPr.pStyle.val) == 2):
+            if (elem.pPr is not None) and (elem.pPr.pStyle is not None) and (elem.pPr.pStyle.val == '2'):
                 current_heading = elem.text
                 # 如果当前有标题，保存之前的节
                 if current_heading:
@@ -95,22 +95,22 @@ def analysis_word(word_path, out_dir, use_dict=True):
                 table = get_table_text(elem)
                 res[word_path][current_heading]["Table"] += table
 
-    # 不要忘记添加文档末尾的最后一节
-    if current_heading and section_content:
-        sections[current_heading] = {
-            'text': section_content, 'tables': current_table}
+    # # 不要忘记添加文档末尾的最后一节
+    # if current_heading and section_content:
+    #     sections[current_heading] = {
+    #         'text': section_content, 'tables': current_table}
 
-    # 打印每个标题下的文本和表格
-    for heading, content in sections.items():
-        print(f"{heading}:")
-        for para in content['text']:
-            print(f"  - {para}")
-        tables = content['tables']
-        if tables:
-            print("  Tables:")
-            for table in tables:
-                # 此处可以根据需要添加表格的处理逻辑
-                pass
+    # # 打印每个标题下的文本和表格
+    # for heading, content in sections.items():
+    #     print(f"{heading}:")
+    #     for para in content['text']:
+    #         print(f"  - {para}")
+    #     tables = content['tables']
+    #     if tables:
+    #         print("  Tables:")
+    #         for table in tables:
+    #             # 此处可以根据需要添加表格的处理逻辑
+    #             pass
 
     # text_res = ""
     # for para in doc.paragraphs:
@@ -145,14 +145,14 @@ def analysis_word(word_path, out_dir, use_dict=True):
 
 
 if __name__ == '__main__':
-    word_path = "BIM/no_heading.docx"
+    word_path = "BIM/4.docx"
     out_dir = 'img_folder'
 
     out = analysis_word(word_path, out_dir)
     # print(out)
 
-    # word_path, file_extension = os.path.splitext(word_path)
-    # word_path = word_path + '.json'
+    word_path, file_extension = os.path.splitext(word_path)
+    word_path = word_path + '.json'
 
-    # with open(word_path, 'w', encoding='utf-8') as json_file:
-    #     json.dump(out, json_file, ensure_ascii=False)
+    with open(word_path, 'w', encoding='utf-8') as json_file:
+        json.dump(out, json_file, ensure_ascii=False)
